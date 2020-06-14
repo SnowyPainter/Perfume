@@ -20,12 +20,9 @@ type LayoutOption int
 
 const (
 	_ FormalElementType = iota
-	WindowElementType
 	HeadElementType
 	BodyElementType
 	FooterElementType
-	RightSideBarElementType
-	LeftSideBarElementType
 )
 
 const (
