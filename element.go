@@ -4,36 +4,56 @@ package perfume
 type IFormalElement interface {
 	Size() Size
 	Type() FormalElementType
-	GetChildren() []*ILayout
-	AddChild(*ILayout) error
+	GetChildren() []ILayout
+	AddChild(ILayout) error
 }
 
-//ILayout is something whose parent is IFormalElement and it has only IElement children
-type ILayout interface {
+//ILayoutElement is something whose parent is IFormalElement and it has only IElement children
+type ILayoutElement interface {
 	Type() LayoutElementType
-	GetParent() *IFormalElement
-	GetChildren() *[]IElement
-	AddChild(*IElement)
+	GetParent() IFormal
+	GetChildren() []IElement
+	AddChild(IElement) error
+	SetParent(IFormal) error
 }
 
-//IElement is a interface that is base of TUI
-type IElement interface {
+//IBaseElement is a interface that is base of TUI
+type IBaseElement interface {
 	GetLocation() RelLocation
 	Type() ElementType
-	Parent() *ILayout
+	GetParent() ILayout
+	SetParent(ILayout) error
+}
+
+//IFormal is a container of all of Formal objects. It must have IFormalElement
+type IFormal interface {
+	GetName() string
+	SetName(string)
+	IFormalElement
+}
+
+//ILayout is a container of all of Layout objects. It must have ILayoutElement
+type ILayout interface {
+	ILayoutElement
+}
+
+//IElement is a container. It contains IBaseElement
+type IElement interface {
+	IBaseElement
 }
 
 //FormalElement contains Layout children. it's a structure
 type FormalElement struct {
+	name     string
 	size     Size
-	children []*ILayout
+	children []ILayout
 	kindof   FormalElementType
 }
 
 //LayoutElement has IElement children and IFormalElement parent
 type LayoutElement struct {
-	parent   *IFormalElement
-	children []*IElement
+	parent   IFormal
+	children []IElement
 	kindof   LayoutElementType
 }
 
@@ -41,30 +61,18 @@ type LayoutElement struct {
 type Element struct {
 	location RelLocation
 	kindof   ElementType
-	parent   *ILayout
+	parent   ILayout
 }
 
 //******Formals*******
-type Window struct {
-	size    Size
-	formals []*FormalElement
-}
 type Head struct {
-	size Size
 	FormalElement
 }
 type Body struct {
-	size Size
 	FormalElement
 }
 type Footer struct {
 	size Size
-	FormalElement
-}
-type RightSideBar struct {
-	FormalElement
-}
-type LeftSideBar struct {
 	FormalElement
 }
 
@@ -78,119 +86,56 @@ type StackLayout struct {
 
 //******Elements*******
 type Input struct {
+	kind InputType
 	Element
 }
 type Text struct {
 	Element
 }
 
-//NewWindow return new window
-func NewWindow(s Size) *Window {
-	return &Window{
-		size:    s,
-		formals: make([]*FormalElement, 0),
-	}
-}
-
 //NewHead return new head
-func NewHead(s Size) *Head {
+func NewHead(s Size, name string) *Head {
 	return &Head{
-		FormalElement: FormalElement{
-			size:     s,
-			children: make([]*ILayout, 0),
-			kindof:   HeadElementType,
-		},
+		FormalElement: EmptyFormal(HeadElementType, s, name),
 	}
 }
 
 //NewBody return new body
-func NewBody(s Size) *Body {
+func NewBody(s Size, name string) *Body {
 	return &Body{
-		FormalElement: FormalElement{
-			size:     s,
-			children: make([]*ILayout, 0),
-			kindof:   BodyElementType,
-		},
+		FormalElement: EmptyFormal(BodyElementType, s, name),
 	}
 }
 
-//******Implements******
-
-//**Except Window**
-//AddFormal adds formal element to window
-func (w *Window) AddFormal(f *FormalElement) error {
-	if f == nil || w.formals == nil {
-		return ErrElementIsNil
+//NewElement return empty Element
+func NewElement(kindof ElementType, loc RelLocation) *Element {
+	return &Element{
+		location: loc,
+		kindof:   kindof,
+		parent:   nil,
 	}
-	w.formals = append(w.formals, f)
-	return nil
 }
 
-//**FormalELement**
-
-//Size func returns its own size
-func (f *FormalElement) Size() Size {
-	return f.size
+//NewLayout return LayoutElement by EmptyLayoutElemnt(Pointer)
+func NewLayout(kindof LayoutElementType) *LayoutElement {
+	return EmptyLayout(kindof)
 }
 
-//Type func returns its own type
-func (f *FormalElement) Type() FormalElementType {
-	return f.kindof
-}
-
-//GetChildren func returns all of its layout children
-func (f *FormalElement) GetChildren() []*ILayout {
-	return f.children
-}
-
-//AddChild func adds a ILayout to children property
-func (f *FormalElement) AddChild(child *ILayout) error {
-	if child == nil {
-		return ErrChildIsNil
+//EmptyFormal returns a FormalElement object whose children init
+func EmptyFormal(formal FormalElementType, s Size, name string) FormalElement {
+	return FormalElement{
+		size:     s,
+		kindof:   formal,
+		children: make([]ILayout, 0),
+		name:     name,
 	}
-
-	f.children = append(f.children, child)
-	return nil
 }
 
-//**LayoutElement**
-
-//Type returns LayoutElementType
-func (l *LayoutElement) Type() LayoutElementType {
-	return l.kindof
-}
-
-//GetParent returns partent(IFormalElement)
-func (l *LayoutElement) GetParent() *IFormalElement {
-	return l.parent
-}
-
-//GetChildren returns children(IElement pointer)
-func (l *LayoutElement) GetChildren() []*IElement {
-	return l.children
-}
-
-//AddChild adds element on children(IElement pointer)
-func (l *LayoutElement) AddChild(element *IElement) error {
-	if element == nil {
-		return ErrChildIsNil
+//EmptyLayout returns parent-nil layout
+func EmptyLayout(layout LayoutElementType) *LayoutElement {
+	return &LayoutElement{
+		kindof:   layout,
+		parent:   nil,
+		children: make([]IElement, 0),
 	}
-	l.children = append(l.children, element)
-	return nil
-}
-
-//**Element Component**
-//GetLocation return relative location of element
-func (e *Element) GetLocation() RelLocation {
-	return e.location
-}
-
-//Type func return type of element
-func (e *Element) Type() ElementType {
-	return e.kindof
-}
-
-//GetParent func return parent of element
-func (e *Element) GetParent() *ILayout {
-	return e.parent
 }
