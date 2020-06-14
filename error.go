@@ -13,4 +13,7 @@ var (
 	ErrElementIsNil             = errors.New("Element is nil")
 	ErrMinusSize                = errors.New("There is minus value in Size")
 	ErrMinusLocation            = errors.New("Location X or Y(or both) is minus")
+	ErrExistFormal              = errors.New("It is exist in window")
+	ErrOutOfWidth               = errors.New("Width is out of window")
+	ErrOutOfHeight              = errors.New("Height is out of window")
 )
