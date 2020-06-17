@@ -1,15 +1,19 @@
 package perfume
 
-//IFormalElement is something that contains ILayouts
-type IFormalElement interface {
+//iFormalElement is something that contains ILayouts
+type iFormalElement interface {
+	GetName() string
+	SetName(string)
 	Size() Size
 	Type() FormalElementType
 	GetChildren() []ILayout
 	AddChild(ILayout) error
 }
 
-//ILayoutElement is something whose parent is IFormalElement and it has only IElement children
-type ILayoutElement interface {
+//iLayoutElement is something whose parent is iFormalElement and it has only IElement children
+type iLayoutElement interface {
+	GetName() string
+	SetName(string)
 	Type() LayoutElementType
 	GetParent() IFormal
 	GetChildren() []IElement
@@ -17,29 +21,29 @@ type ILayoutElement interface {
 	SetParent(IFormal) error
 }
 
-//IBaseElement is a interface that is base of TUI
-type IBaseElement interface {
+//iElement is a interface that is base of TUI
+type iElement interface {
+	GetName() string
+	SetName(string)
 	GetLocation() RelLocation
 	Type() ElementType
 	GetParent() ILayout
 	SetParent(ILayout) error
 }
 
-//IFormal is a container of all of Formal objects. It must have IFormalElement
+//IFormal is a container of all of Formal objects. It must have iFormalElement
 type IFormal interface {
-	GetName() string
-	SetName(string)
-	IFormalElement
+	iFormalElement
 }
 
-//ILayout is a container of all of Layout objects. It must have ILayoutElement
+//ILayout is a container of all of Layout objects. It must have iLayoutElement
 type ILayout interface {
-	ILayoutElement
+	iLayoutElement
 }
 
-//IElement is a container. It contains IBaseElement
+//IElement is a container. It contains iElement
 type IElement interface {
-	IBaseElement
+	iElement
 }
 
 //FormalElement contains Layout children. it's a structure
@@ -50,8 +54,9 @@ type FormalElement struct {
 	kindof   FormalElementType
 }
 
-//LayoutElement has IElement children and IFormalElement parent
+//LayoutElement has IElement children and iFormalElement parent
 type LayoutElement struct {
+	name     string
 	parent   IFormal
 	children []IElement
 	kindof   LayoutElementType
@@ -59,6 +64,7 @@ type LayoutElement struct {
 
 //Element is structure that is compoent of LayoutElement
 type Element struct {
+	name     string
 	location RelLocation
 	kindof   ElementType
 	parent   ILayout
@@ -107,18 +113,14 @@ func NewBody(s Size, name string) *Body {
 	}
 }
 
-//NewElement return empty Element
-func NewElement(kindof ElementType, loc RelLocation) *Element {
-	return &Element{
-		location: loc,
-		kindof:   kindof,
-		parent:   nil,
-	}
+//NewLayout return LayoutElement by EmptyLayoutElemnt(Pointer)
+func NewLayout(kindof LayoutElementType, name string) *LayoutElement {
+	return EmptyLayout(kindof, name)
 }
 
-//NewLayout return LayoutElement by EmptyLayoutElemnt(Pointer)
-func NewLayout(kindof LayoutElementType) *LayoutElement {
-	return EmptyLayout(kindof)
+//NewElement return empty Element
+func NewElement(kindof ElementType, name string, loc RelLocation) *Element {
+	return EmptyElement(kindof, loc, name)
 }
 
 //EmptyFormal returns a FormalElement object whose children init
@@ -132,10 +134,21 @@ func EmptyFormal(formal FormalElementType, s Size, name string) FormalElement {
 }
 
 //EmptyLayout returns parent-nil layout
-func EmptyLayout(layout LayoutElementType) *LayoutElement {
+func EmptyLayout(layout LayoutElementType, name string) *LayoutElement {
 	return &LayoutElement{
+		name:     name,
 		kindof:   layout,
 		parent:   nil,
 		children: make([]IElement, 0),
+	}
+}
+
+//EmptyElement returns layoutless element(dependenced)
+func EmptyElement(element ElementType, loc RelLocation, name string) *Element {
+	return &Element{
+		name:     name,
+		kindof:   element,
+		parent:   nil,
+		location: loc,
 	}
 }

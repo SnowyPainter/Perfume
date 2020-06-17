@@ -44,6 +44,16 @@ func (f *FormalElement) AddChild(child ILayout) error {
 
 //**LayoutElement**
 
+//GetName return name(string)
+func (l *LayoutElement) GetName() string {
+	return l.name
+}
+
+//SetName set name(string)
+func (l *LayoutElement) SetName(name string) {
+	l.name = name
+}
+
 //Type returns LayoutElementType
 func (l *LayoutElement) Type() LayoutElementType {
 	return l.kindof
@@ -79,6 +89,17 @@ func (l *LayoutElement) SetParent(formal IFormal) error {
 }
 
 //**Element Component**
+
+//GetName return name(string)
+func (e *Element) GetName() string {
+	return e.name
+}
+
+//SetName set name(string)
+func (e *Element) SetName(name string) {
+	e.name = name
+}
+
 //GetLocation return relative location of element
 func (e *Element) GetLocation() RelLocation {
 	return e.location
