@@ -2,6 +2,7 @@ package perfume
 
 import "fmt"
 
+//Window is the base of Perfume as Builder
 type Window struct {
 	size    Size
 	formals map[FormalElementType]IFormal
@@ -54,8 +55,8 @@ func (w *Window) FindFormal(targetType FormalElementType) (IFormal, error) {
 	return nil, nil
 }
 
-//Set f must be pointer IFormal
-func (w *Window) Set(kindof FormalElementType, f IFormal) error {
+//SetFormal f must be pointer IFormal
+func (w *Window) SetFormal(kindof FormalElementType, f IFormal) error {
 	if f == nil || w == nil {
 		return ErrElementIsNil
 	}
