@@ -2,26 +2,32 @@ package perfume
 
 //******Implements******
 
-//**FormalELement**
-
+//ElementBase
 //GetName return name(string)
-func (f *FormalElement) GetName() string {
-	return f.name
+func (eb *ElementBase) GetName() string {
+	return eb.name
 }
 
 //SetName set name(string)
-func (f *FormalElement) SetName(name string) {
-	f.name = name
+func (eb *ElementBase) SetName(name string) {
+	eb.name = name
+}
+
+//**FormalELement**
+//Type func returns its own type
+
+//ChildrenCount return count of children it has. (time complex)
+func (f *FormalElement) ChildrenCount() int {
+	return len(f.children)
+}
+
+func (f *FormalElement) Type() FormalElementType {
+	return f.kindof
 }
 
 //Size func returns its own size
 func (f *FormalElement) Size() Size {
 	return f.size
-}
-
-//Type func returns its own type
-func (f *FormalElement) Type() FormalElementType {
-	return f.kindof
 }
 
 //GetChildren func returns all of its layout children
@@ -44,14 +50,9 @@ func (f *FormalElement) AddChild(child ILayout) error {
 
 //**LayoutElement**
 
-//GetName return name(string)
-func (l *LayoutElement) GetName() string {
-	return l.name
-}
-
-//SetName set name(string)
-func (l *LayoutElement) SetName(name string) {
-	l.name = name
+//ChildrenCount return count of children it has. (time complex)
+func (l *LayoutElement) ChildrenCount() int {
+	return len(l.children)
 }
 
 //Type returns LayoutElementType
@@ -89,16 +90,6 @@ func (l *LayoutElement) SetParent(formal IFormal) error {
 }
 
 //**Element Component**
-
-//GetName return name(string)
-func (e *Element) GetName() string {
-	return e.name
-}
-
-//SetName set name(string)
-func (e *Element) SetName(name string) {
-	e.name = name
-}
 
 //GetLocation return relative location of element
 func (e *Element) GetLocation() RelLocation {

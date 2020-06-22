@@ -2,53 +2,58 @@ package perfume
 
 //iFormalElement is something that contains ILayouts
 type iFormalElement interface {
-	GetName() string
-	SetName(string)
 	Size() Size
-	Type() FormalElementType
 	GetChildren() []ILayout
+	ChildrenCount() int
 	AddChild(ILayout) error
+	Type() FormalElementType
 }
 
 //iLayoutElement is something whose parent is iFormalElement and it has only IElement children
 type iLayoutElement interface {
-	GetName() string
-	SetName(string)
-	Type() LayoutElementType
 	GetParent() IFormal
 	GetChildren() []IElement
+	ChildrenCount() int
 	AddChild(IElement) error
 	SetParent(IFormal) error
+	Type() LayoutElementType
 }
 
 //iElement is a interface that is base of TUI
 type iElement interface {
-	GetName() string
-	SetName(string)
 	GetLocation() RelLocation
-	Type() ElementType
 	GetParent() ILayout
 	SetParent(ILayout) error
+	Type() ElementType
+}
+
+//iBaseElement is the base interface of all elements(layout,formals ...)
+type iBaseElement interface {
+	GetName() string
+	SetName(string)
 }
 
 //IFormal is a container of all of Formal objects. It must have iFormalElement
 type IFormal interface {
 	iFormalElement
+	iBaseElement
 }
 
 //ILayout is a container of all of Layout objects. It must have iLayoutElement
 type ILayout interface {
 	iLayoutElement
+	iBaseElement
 }
 
 //IElement is a container. It contains iElement
 type IElement interface {
 	iElement
+	iBaseElement
 }
 
 //FormalElement contains Layout children. it's a structure
 type FormalElement struct {
-	name     string
+	ElementBase
 	size     Size
 	children []ILayout
 	kindof   FormalElementType
@@ -56,7 +61,7 @@ type FormalElement struct {
 
 //LayoutElement has IElement children and iFormalElement parent
 type LayoutElement struct {
-	name     string
+	ElementBase
 	parent   IFormal
 	children []IElement
 	kindof   LayoutElementType
@@ -64,10 +69,15 @@ type LayoutElement struct {
 
 //Element is structure that is compoent of LayoutElement
 type Element struct {
-	name     string
+	ElementBase
 	location RelLocation
 	kindof   ElementType
 	parent   ILayout
+}
+
+//ElementBase is structure that is base of all of elements
+type ElementBase struct {
+	name string
 }
 
 //******Formals*******
@@ -123,32 +133,37 @@ func NewElement(kindof ElementType, name string, loc RelLocation) *Element {
 	return EmptyElement(kindof, loc, name)
 }
 
+//NewBase return baseelement
+func NewBase(name string) ElementBase {
+	return ElementBase{name: name}
+}
+
 //EmptyFormal returns a FormalElement object whose children init
 func EmptyFormal(formal FormalElementType, s Size, name string) FormalElement {
 	return FormalElement{
-		size:     s,
-		kindof:   formal,
-		children: make([]ILayout, 0),
-		name:     name,
+		size:        s,
+		kindof:      formal,
+		children:    make([]ILayout, 0),
+		ElementBase: NewBase(name),
 	}
 }
 
 //EmptyLayout returns parent-nil layout
 func EmptyLayout(layout LayoutElementType, name string) *LayoutElement {
 	return &LayoutElement{
-		name:     name,
-		kindof:   layout,
-		parent:   nil,
-		children: make([]IElement, 0),
+		ElementBase: NewBase(name),
+		kindof:      layout,
+		parent:      nil,
+		children:    make([]IElement, 0),
 	}
 }
 
 //EmptyElement returns layoutless element(dependenced)
 func EmptyElement(element ElementType, loc RelLocation, name string) *Element {
 	return &Element{
-		name:     name,
-		kindof:   element,
-		parent:   nil,
-		location: loc,
+		ElementBase: NewBase(name),
+		kindof:      element,
+		parent:      nil,
+		location:    loc,
 	}
 }

@@ -24,19 +24,16 @@ const (
 	BodyElementType
 	FooterElementType
 )
-
 const (
 	_ LayoutElementType = iota
 	FreeLayoutType
 	StackLayoutType
 )
-
 const (
 	_ ElementType = iota
 	InputElementType
 	TextElementType
 )
-
 const (
 	_ InputType = iota
 	TextInputType
@@ -44,7 +41,6 @@ const (
 	CheckInputType
 	NumericInputType
 )
-
 const (
 	_ ComponentOption = iota
 	MarginOption
