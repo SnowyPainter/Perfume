@@ -1,5 +1,11 @@
 package perfume
 
+import (
+	"fmt"
+
+	terminal "github.com/wayneashleyberry/terminal-dimensions"
+)
+
 //Window is the base of Perfume as Builder
 type Window struct {
 	size    Size
@@ -8,6 +14,14 @@ type Window struct {
 
 //NewWindow return new window
 func NewWindow(s Size) *Window {
+	x, err := terminal.Width()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	y, err := terminal.Height()
+
+	fmt.Println(x, y)
+
 	return &Window{
 		size:    s,
 		formals: make(map[FormalElementType]IFormal),
