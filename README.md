@@ -1,5 +1,28 @@
 Perfume 구조와 개발 가이드
 ======================
+## 0. 파싱 Format Tree 뷰어
+--------------------
+```
+window := NewWindow(NewSize(32, 80))
+body := NewBody(NewSize(32, 80), "MainBody")
+stack := NewLayout(StackLayoutType,"MyLayout")
+input := NewElement(InputElementType, "MyInput", NewRelativeLocation(5, 10))
+
+_ = body.AddChild(stack)
+_ = stack.AddChild(input)
+_ = window.Add(body)
+
+renderer := NewRenderer(window)
+
+renderer.PrintStruct(ElementsPrintDepth, map[PrintLineForm]*Parseable{
+	WindowLine:   NewParseable("Window || (%Size%) || (%ChildrenLen%) ||\n\n"),
+	FormalsLine:  NewParseable("-- (%Name%) Formal --\n"),
+	LayoutsLine:  NewParseable("\t└--(%Type%)layout %Name%\n"),
+	ElementsLine: NewParseable("\t\t└--(%Type%)element LOC:%RelLocation%\n"),
+})
+```
+위와 같은 코드로 Renderer를 만든 후, PrintStruct함수로 Window와 그 하위 객체들에 대한 그림을 그리나, %PROPERTY%로 묶은 문자열로, 자율적으로 프린팅Printing 방법을 고칠 수 있습니다. 더 자세한 부분은 parser.go의 PrintPropertyType를 봐주세요.
+
 ## 1.구조
 --------------
 
