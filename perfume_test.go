@@ -18,9 +18,9 @@ func TestRenderer(t *testing.T) {
 	renderer := NewRenderer(window)
 
 	renderer.PrintStruct(ElementsPrintDepth, map[PrintLineForm]*Parseable{
-		WindowLine:   NewParseable("Window || (%Size%) || (%ChildrenLen%) ||\n\n"),
-		FormalsLine:  NewParseable("-- (%Name%) Formal --\n"),
-		LayoutsLine:  NewParseable("\t└--(%Type%)layout %Name%\n"),
-		ElementsLine: NewParseable("\t\t└--(%Type%)element LOC:%RelLocation%\n"),
+		WindowLine:   NewParseable("Window || (", SizeProperty, ") || (", ChildrenLenProperty, ") ||\n\n"),
+		FormalsLine:  NewParseable("-- (", NameProperty, ") Formal --\n"),
+		LayoutsLine:  NewParseable("\t└--(", TypeProperty, ")layout ", NameProperty, "\n"),
+		ElementsLine: NewParseable("\t\t└--(", TypeProperty, ")element LOC:", RelLocationProperty, "\n"),
 	})
 }

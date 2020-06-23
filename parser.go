@@ -53,8 +53,8 @@ type Parseable struct {
 }
 
 //NewParseable return parseable(content) pointer
-func NewParseable(c string) *Parseable {
-	return &Parseable{content: c}
+func NewParseable(c ...string) *Parseable {
+	return &Parseable{content: strings.Join(c, "")}
 }
 
 func (p *Parseable) findProperties() []string {
@@ -69,9 +69,9 @@ func (p *Parseable) Window(w *Window) string {
 		switch k {
 		case SizeProperty:
 			sizeStr := fmt.Sprintf("%d,%d", w.size.Width, w.size.Height)
-			parsed = strings.Replace(parsed, SizeProperty, sizeStr, -1)
+			replace(&parsed, SizeProperty, sizeStr)
 		case ChildrenLenProperty:
-			parsed = strings.Replace(parsed, ChildrenLenProperty, strconv.Itoa(len(w.formals)), -1)
+			replace(&parsed, ChildrenLenProperty, strconv.Itoa(len(w.formals)))
 		}
 	}
 	return parsed
