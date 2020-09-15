@@ -11,7 +11,8 @@ func (r *Renderer) isNil(obj interface{}) bool {
 
 //Renderer render windows and children to terminal
 type Renderer struct {
-	window *Window
+	printBuffer string
+	window      *Window
 }
 
 //NewRenderer returns renderer pointer it can be nil
@@ -22,6 +23,32 @@ func NewRenderer(w *Window) *Renderer {
 //SetWindow sets window of itself it can be nil
 func (r *Renderer) SetWindow(w *Window) {
 	r.window = w
+}
+
+func (r *Renderer) Render() {
+	window := r.window
+	elements := make([]string, 0)
+
+	for _, formal := range window.formals {
+
+		//Style Edit
+
+		for _, layout := range formal.GetChildren() {
+
+			//Style Edit
+
+			for _, element := range layout.GetChildren() {
+
+				//Style Edit
+
+				elements = append(elements, element.GetName())
+			}
+		}
+	}
+
+	for i, e := range elements {
+		fmt.Println(i, " : ", e)
+	}
 }
 
 //PrintStruct prints information of window
