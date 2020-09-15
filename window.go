@@ -1,8 +1,6 @@
 package perfume
 
 import (
-	"fmt"
-
 	terminal "github.com/wayneashleyberry/terminal-dimensions"
 )
 
@@ -13,19 +11,22 @@ type Window struct {
 }
 
 //NewWindow return new window
-func NewWindow(s Size) *Window {
+func NewWindow(s Size) (*Window, error) {
 	x, err := terminal.Width()
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
 	}
 	y, err := terminal.Height()
-
-	fmt.Println(x, y)
-
+	if err != nil {
+		return nil, err
+	}
+	if int(x) > s.Width || int(y) > s.Height {
+		return nil, ErrOutOfWidth
+	}
 	return &Window{
 		size:    s,
 		formals: make(map[FormalElementType]IFormal),
-	}
+	}, nil
 }
 
 //Add adds formal element to window

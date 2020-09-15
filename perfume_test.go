@@ -1,12 +1,16 @@
 package perfume
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestRenderer(t *testing.T) {
 
-	window := NewWindow(NewSize(32, 80))
+	window, err := NewWindow(NewSize(32, 80))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	body := NewBody(NewSize(32, 80), "MainBody")
 	stack := NewLayout(StackLayoutType, "MyLayout")
 	input := NewElement(InputElementType, "MyInput", NewRelativeLocation(5, 10))
