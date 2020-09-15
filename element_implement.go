@@ -13,6 +13,32 @@ func (eb *ElementBase) SetName(name string) {
 	eb.name = name
 }
 
+func (eb *ElementBase) LoadOption(opt CommonOption) *Option {
+	if option, exist := eb.publicOptions[opt]; exist {
+		return option
+	}
+
+	return NilOption()
+}
+
+func (eb *ElementBase) AddOption(name CommonOption, opt *Option) error {
+	if _, exist := eb.publicOptions[name]; exist {
+		return ErrElementOptionAlreadyExist
+	}
+
+	eb.publicOptions[name] = opt
+	return nil
+}
+
+func (eb *ElementBase) SetOptionItself(name CommonOption, opt *Option) error {
+	if _, exist := eb.publicOptions[name]; exist {
+		eb.publicOptions[name] = opt
+		return nil
+	}
+
+	return ErrElementOptionDoesntExist
+}
+
 //**FormalELement**
 //Type func returns its own type
 

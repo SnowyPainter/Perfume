@@ -31,6 +31,9 @@ type iElement interface {
 type iBaseElement interface {
 	GetName() string
 	SetName(string)
+	LoadOption(CommonOption) *Option
+	AddOption(CommonOption, *Option) error
+	SetOptionItself(CommonOption, *Option) error
 }
 
 //IFormal is a container of all of Formal objects. It must have iFormalElement
@@ -77,7 +80,8 @@ type Element struct {
 
 //ElementBase is structure that is base of all of elements
 type ElementBase struct {
-	name string
+	name          string
+	publicOptions map[CommonOption]*Option
 }
 
 //******Formals*******
@@ -133,9 +137,12 @@ func NewElement(kindof ElementType, name string, loc RelLocation) *Element {
 	return EmptyElement(kindof, loc, name)
 }
 
-//NewBase return baseelement
+//NewBase return baseelement -> Root for all ofvs
 func NewBase(name string) ElementBase {
-	return ElementBase{name: name}
+	return ElementBase{
+		name:          name,
+		publicOptions: make(map[CommonOption]*Option),
+	}
 }
 
 //EmptyFormal returns a FormalElement object whose children init
