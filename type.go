@@ -1,22 +1,25 @@
 package perfume
 
 //FormalElementType is type of some groupping Layouts
-type FormalElementType int
+type FormalElementType uint8
 
 //LayoutElementType is type of something that contains only IElement
-type LayoutElementType int
+type LayoutElementType uint8
 
 //ElementType is type of elements which can't be parent
-type ElementType int
+type ElementType uint8
 
 //InputType Types of Input Element
-type InputType int
+type InputType uint8
+
+//CommonOption can be apply all types
+type CommonOption uint8
 
 //ComponentOption Type of styles
-type ComponentOption int
+type ComponentOption uint8
 
 //LayoutOption options
-type LayoutOption int
+type LayoutOption uint8
 
 const (
 	_ FormalElementType = iota
@@ -40,16 +43,4 @@ const (
 	ChooseInputType
 	CheckInputType
 	NumericInputType
-)
-const (
-	_ ComponentOption = iota
-	MarginOption
-	PaddingOption
-	WidthOption
-	HeightOption
-)
-const (
-	_ LayoutOption = iota
-	SpacingOption
-	OrientationOption
 )
