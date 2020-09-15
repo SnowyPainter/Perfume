@@ -1,7 +1,7 @@
 package perfume
 
-import (
-	terminal "github.com/wayneashleyberry/terminal-dimensions"
+const (
+	FULLSIZE = 0
 )
 
 //Window is the base of Perfume as Builder
@@ -12,17 +12,24 @@ type Window struct {
 
 //NewWindow return new window
 func NewWindow(s Size) (*Window, error) {
-	x, err := terminal.Width()
+	/*w, h, err := terminal.GetSize(0)
 	if err != nil {
 		return nil, err
 	}
-	y, err := terminal.Height()
-	if err != nil {
-		return nil, err
+	width := uint(w)
+	height := uint(h)
+	fmt.Println("Width : ", width, " Height : ", height)
+	if s.Width == FULLSIZE {
+		s.Width = width
 	}
-	if int(x) > s.Width || int(y) > s.Height {
+	if s.Height == FULLSIZE {
+		s.Height = height
+	}
+	if height > s.Width || height > s.Height {
 		return nil, ErrOutOfWidth
 	}
+	*/
+
 	return &Window{
 		size:    s,
 		formals: make(map[FormalElementType]IFormal),
@@ -31,11 +38,12 @@ func NewWindow(s Size) (*Window, error) {
 
 //Add adds formal element to window
 func (w *Window) Add(f IFormal) error {
+
 	if f == nil || w.formals == nil {
 		return ErrElementIsNil
 	}
 
-	if _, err := w.FindFormal(f.Type()); err != nil {
+	if _, err := w.FindFormal(f.Type()); err == nil {
 		return ErrExistFormal
 	}
 
@@ -61,7 +69,7 @@ func (w *Window) FindFormal(targetType FormalElementType) (IFormal, error) {
 		return val, nil
 	}
 
-	return nil, nil
+	return nil, ErrNotExist
 }
 
 //SetFormal f must be pointer IFormal
