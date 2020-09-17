@@ -19,4 +19,7 @@ var (
 	ErrOutOfHeight                          = errors.New("Height is out of window")
 	ErrElementOptionAlreadyExist            = errors.New("Element has already has that option")
 	ErrElementOptionDoesntExist             = errors.New("Element doesn't have that option")
+	ErrStartIndexOverEndIndex               = errors.New("The start index is over than end index")
+	ErrEndIndexOverMax                      = errors.New("The end index is over than max length(ex width)")
+	ErrOverSize                             = errors.New("Row/Col value is over than height")
 )
