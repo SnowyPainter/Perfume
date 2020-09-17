@@ -1,6 +1,9 @@
 package perfume
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+)
 
 const (
 	_ CommonOption = iota
@@ -33,25 +36,6 @@ type Option struct {
 	valueType     reflect.Type
 }
 
-func (o *Option) SetSettingFunc(f OptionSetHandler) {
-	o.setHandleFunc = f
-}
-
-func (o *Option) SetReturnFunc(f OptionGetHandler) {
-	o.getHandleFunc = f
-}
-
-func (o Option) Get() interface{} {
-	return o.getHandleFunc(o.value)
-}
-func (o *Option) Set(val interface{}) {
-	o.setHandleFunc(o, val)
-}
-
-func NilOption() *Option {
-	return &Option{}
-}
-
 //RelLocation is location structure which is relative of parent
 type RelLocation struct {
 	X int
@@ -72,11 +56,13 @@ type Size struct {
 func CreateOption(valType reflect.Type, returnFunc OptionGetHandler, settingFunc OptionSetHandler) (opt *Option) {
 
 	if returnFunc == nil {
+		//Default
 		returnFunc = func(v interface{}) interface{} {
 			return v
 		}
 	}
 	if settingFunc == nil {
+		//Default
 		settingFunc = func(opt *Option, v interface{}) {
 			if opt != nil {
 				opt.value = v
@@ -104,4 +90,23 @@ func NewSize(height uint, width uint) Size {
 	return Size{
 		Height: height, Width: width,
 	}
+}
+
+func (o *Option) SetSettingFunc(f OptionSetHandler) {
+	o.setHandleFunc = f
+}
+
+func (o *Option) SetReturnFunc(f OptionGetHandler) {
+	o.getHandleFunc = f
+}
+
+func (o Option) Get() interface{} {
+	return o.getHandleFunc(o.value)
+}
+func (o *Option) Set(val interface{}) {
+	o.setHandleFunc(o, val)
+}
+
+func (size Size) String() string {
+	return fmt.Sprintf("Height : %d, Width : %d", size.Height, size.Width)
 }
