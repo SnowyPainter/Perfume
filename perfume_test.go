@@ -7,13 +7,15 @@ import (
 )
 
 func TestRenderer(t *testing.T) {
+	testingSize := NewSize(5, 32)
 
-	window, err := NewWindow(NewSize(32, 80))
+	window, err := NewWindow(testingSize)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	body := NewBody(NewSize(32, 80), "MainBody")
+	//Manbody testing size applied
+	body := NewBody(testingSize, "MainBody")
 
 	borderOpt := CreateOption(reflect.TypeOf(""), nil, nil)
 	borderOpt.Set("*")

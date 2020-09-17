@@ -11,13 +11,13 @@ func (r *Renderer) isNil(obj interface{}) bool {
 
 //Renderer render windows and children to terminal
 type Renderer struct {
-	printBuffer string
+	printBuffer PrintBuffer
 	window      *Window
 }
 
 //NewRenderer returns renderer pointer it can be nil
 func NewRenderer(w *Window) *Renderer {
-	return &Renderer{window: w}
+	return &Renderer{window: w, printBuffer: NewPrintBuffer(w.size)}
 }
 
 //SetWindow sets window of itself it can be nil
@@ -25,13 +25,23 @@ func (r *Renderer) SetWindow(w *Window) {
 	r.window = w
 }
 
+//Render render formals, layouts, elements to terminal
 func (r *Renderer) Render() {
 	window := r.window
 	elements := make([]string, 0)
 
 	for _, formal := range window.formals {
 
-		//Style Edit
+		//Style Edit - TEST - TEMPORARY
+
+		if borderOpt := formal.LoadOption(BorderOption); borderOpt != nil {
+			border := borderOpt.Get().(string)
+			size := formal.Size()
+			_ = r.printBuffer.SetRow(border, 0, 0, size.Width)
+			_ = r.printBuffer.SetRow(border, size.Height-1, 0, size.Width)
+			_ = r.printBuffer.SetColumn(border, 0, 0, size.Height)
+			_ = r.printBuffer.SetColumn(border, size.Width-1, 0, size.Height)
+		}
 
 		for _, layout := range formal.GetChildren() {
 
@@ -46,9 +56,13 @@ func (r *Renderer) Render() {
 		}
 	}
 
-	for i, e := range elements {
-		fmt.Println(i, " : ", e)
+	for i := uint(0); i < window.size.Height; i++ {
+		fmt.Println(r.printBuffer.GetLine(i))
 	}
+
+	/*for i, e := range elements {
+		fmt.Println(i, " : ", e)
+	}*/
 }
 
 //PrintStruct prints information of window
