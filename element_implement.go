@@ -13,12 +13,18 @@ func (eb *ElementBase) SetName(name string) {
 	eb.name = name
 }
 
+//GetAllOption return option
+func (eb *ElementBase) LoadAllOption() map[CommonOption]*Option {
+	return eb.publicOptions
+}
+
+//LoadOption return option that can be edit
 func (eb *ElementBase) LoadOption(opt CommonOption) *Option {
 	if option, exist := eb.publicOptions[opt]; exist {
 		return option
 	}
 
-	return NilOption()
+	return nil
 }
 
 func (eb *ElementBase) AddOption(name CommonOption, opt *Option) error {

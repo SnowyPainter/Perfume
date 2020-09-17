@@ -31,6 +31,7 @@ type iElement interface {
 type iBaseElement interface {
 	GetName() string
 	SetName(string)
+	LoadAllOption() map[CommonOption]*Option
 	LoadOption(CommonOption) *Option
 	AddOption(CommonOption, *Option) error
 	SetOptionItself(CommonOption, *Option) error
