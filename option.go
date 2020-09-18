@@ -92,6 +92,18 @@ func NewSize(height uint, width uint) Size {
 	}
 }
 
+func (s Size) Plus(number int) Size {
+	n := uint(number)
+	if s.Height-n < 1 || s.Width-n < 1 {
+		return Size{}
+	}
+	size := Size{
+		Height: s.Height + n,
+		Width:  s.Width + n,
+	}
+	return size
+}
+
 //SetSettingFunc set Set func property func
 func (o *Option) SetSettingFunc(f OptionSetHandler) {
 	o.setHandleFunc = f
