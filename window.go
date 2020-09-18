@@ -1,5 +1,7 @@
 package perfume
 
+import "sort"
+
 const (
 	FULLSIZE = 0
 )
@@ -80,6 +82,20 @@ func (w *Window) SetFormal(kindof FormalElementType, f IFormal) error {
 
 	w.formals[kindof] = f
 	return nil
+}
+
+func (w *Window) GetFormalByOrder(ascending bool) (formals []FormalElementType) {
+	keys := make([]FormalElementType, 0)
+	for key := range w.formals {
+		keys = append(keys, key)
+	}
+	sliceFunc := func(i, j int) bool { return keys[i] > keys[j] }
+	if ascending {
+		sliceFunc = func(i, j int) bool { return keys[i] < keys[j] }
+	}
+	sort.Slice(keys, sliceFunc)
+
+	return keys
 }
 
 //GetFormalSizes return all size of formals that children on window

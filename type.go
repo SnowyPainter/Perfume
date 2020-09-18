@@ -21,6 +21,7 @@ type ComponentOption uint8
 //LayoutOption options
 type LayoutOption uint8
 
+//Load Formals like this order
 const (
 	_ FormalElementType = iota
 	HeadElementType
