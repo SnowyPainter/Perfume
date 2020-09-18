@@ -92,10 +92,12 @@ func NewSize(height uint, width uint) Size {
 	}
 }
 
+//SetSettingFunc set Set func property func
 func (o *Option) SetSettingFunc(f OptionSetHandler) {
 	o.setHandleFunc = f
 }
 
+//SetReturnFunc set Get func property func
 func (o *Option) SetReturnFunc(f OptionGetHandler) {
 	o.getHandleFunc = f
 }
@@ -105,6 +107,10 @@ func (o Option) Get() interface{} {
 }
 func (o *Option) Set(val interface{}) {
 	o.setHandleFunc(o, val)
+}
+
+func (o Option) Clone() *Option {
+	return &o
 }
 
 func (size Size) String() string {
