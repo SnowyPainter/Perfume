@@ -25,44 +25,85 @@ func (r *Renderer) SetWindow(w *Window) {
 	r.window = w
 }
 
+func callSequence(errors ...error) (int, error) {
+	for i, err := range errors {
+		if err != nil {
+			return i, err
+		}
+	}
+	return -1, nil
+}
+
+func bufferBorder(b *PrintBuffer, border string, start RelLocation, s Size) error {
+	if start.X < 0 || start.Y < 0 {
+		return ErrMinusSize
+	}
+	x := uint(start.X)
+	y := uint(start.Y)
+
+	c, err := callSequence(
+		b.SetRow(border, y, x, s.Width),
+		b.SetRow(border, y+s.Height-1, x, s.Width),
+		b.SetColumn(border, x, y, s.Height+y),
+		b.SetColumn(border, x+s.Width-1, y, s.Height+y),
+	)
+	if err != nil {
+		panic(fmt.Sprintf("%d : %s", c, err.Error()))
+	}
+	return nil
+}
+
+func applyOptions(buffer *PrintBuffer, options map[CommonOption]*Option, elementLoc RelLocation, elementSize Size) {
+	for key, option := range options {
+		switch key {
+		case BorderOption:
+			bufferBorder(buffer, option.Get().(string), elementLoc, elementSize)
+		}
+	}
+}
+
 //Render render formals, layouts, elements to terminal
 func (r *Renderer) Render() {
 	window := r.window
 	elements := make([]string, 0)
 
-	for _, formal := range window.formals {
+	formalStartsByHeight := 0
+	elementLevel := 0
 
-		//Style Edit - TEST - TEMPORARY
+	for _, formal := range window.GetFormalByOrder(true) {
+		elementLevel = 0 //Must be at top
 
-		if borderOpt := formal.LoadOption(BorderOption); borderOpt != nil {
-			border := borderOpt.Get().(string)
-			size := formal.Size()
-			_ = r.printBuffer.SetRow(border, 0, 0, size.Width)
-			_ = r.printBuffer.SetRow(border, size.Height-1, 0, size.Width)
-			_ = r.printBuffer.SetColumn(border, 0, 0, size.Height)
-			_ = r.printBuffer.SetColumn(border, size.Width-1, 0, size.Height)
-		}
+		formalElement, _ := window.FindFormal(formal)
+		formalSize := formalElement.Size()
+		formalLoc := NewRelativeLocation(elementLevel, formalStartsByHeight)
 
-		for _, layout := range formal.GetChildren() {
+		applyOptions(&r.printBuffer, formalElement.LoadAllOption(), formalLoc, formalSize)
 
-			//Style Edit
+		for _, layout := range formalElement.GetChildren() {
+			elementLevel = 1 //Must be at top
+
+			layoutSize := layout.Size()
+			layoutLoc := NewRelativeLocation(elementLevel, formalStartsByHeight+elementLevel)
+
+			applyOptions(&r.printBuffer, layout.LoadAllOption(), layoutLoc, layoutSize)
 
 			for _, element := range layout.GetChildren() {
-
+				elementLevel = 2
 				//Style Edit
 
 				elements = append(elements, element.GetName())
 			}
 		}
+
+		// Summing
+		formalStartsByHeight += int(formalSize.Height)
 	}
 
+	//Print to console
 	for i := uint(0); i < window.size.Height; i++ {
 		fmt.Println(r.printBuffer.GetLine(i))
 	}
 
-	/*for i, e := range elements {
-		fmt.Println(i, " : ", e)
-	}*/
 }
 
 //PrintStruct prints information of window
