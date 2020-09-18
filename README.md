@@ -145,7 +145,54 @@ _ = printBuffer.SetColumn(border, size.Width-1, 0, size.Height)
 미완성
 ```
 
-## 5. 추후 개발 가이드( 변할 수 있습니다! )
+## 5. 옵션 (Option.go) 
+
+옵션은 말 그대로 엘리먼트(element)의 옵션입니다.  
+```CreateOption``` 함수를 통해 생성할 수 있습니다.  
+옵션의 ```Set```, ```Get``` 내부 함수들은 ```SetSettingFunc```, ```SetReturnFunc``` 함수로 설정 가능하며, 이것은 C#의 Property와 비슷합니다.  
+
+### 주의
+-----------
+옵션의 Set으로 설정된 어떠한 '값'들은, 다른 엘리먼트들에게 넘겨질때 주소를 전달하기 때문에, 아래와 같은 코드일때 의도한 대로  
+각기다른 border로 작동하지 않습니다.  
+``` Go
+borderOpt.Set("*")
+body.AddOption(
+	BorderOption,
+	borderOpt,
+)
+borderOpt.Set("-")
+head.AddOption(
+	BorderOption,
+	borderOpt,
+)
+borderOpt.Set("=")
+foot.AddOption(
+	BorderOption,
+	borderOpt,
+)
+```
+
+```Clone```함수를 통해 해결할 수 있습니다.
+``` Go
+borderOpt.Set("*")
+body.AddOption(
+	BorderOption,
+	borderOpt.Clone(),
+)
+borderOpt.Set("-")
+head.AddOption(
+	BorderOption,
+	borderOpt.Clone(),
+)
+borderOpt.Set("=")
+foot.AddOption(
+	BorderOption,
+	borderOpt.Clone(),
+)
+```
+
+## 6. 추후 개발 가이드( 변할 수 있습니다! )
 ----------------
 1. 모든 엘리먼트(Formal,Layout 등)은 이름을 가져야 합니다  
 
