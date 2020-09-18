@@ -88,8 +88,13 @@ func (l *LayoutElement) ChildrenCount() int {
 }
 
 //Type returns LayoutElementType
-func (l *LayoutElement) Type() LayoutElementType {
+func (l LayoutElement) Type() LayoutElementType {
 	return l.kindof
+}
+
+//Size func returns its own size
+func (l LayoutElement) Size() Size {
+	return l.size
 }
 
 //GetParent returns partent(IFormalElement)

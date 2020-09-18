@@ -11,6 +11,7 @@ type iFormalElement interface {
 
 //iLayoutElement is something whose parent is iFormalElement and it has only IElement children
 type iLayoutElement interface {
+	Size() Size
 	GetParent() IFormal
 	GetChildren() []IElement
 	ChildrenCount() int
@@ -66,6 +67,7 @@ type FormalElement struct {
 //LayoutElement has IElement children and iFormalElement parent
 type LayoutElement struct {
 	ElementBase
+	size     Size
 	parent   IFormal
 	children []IElement
 	kindof   LayoutElementType
@@ -93,7 +95,6 @@ type Body struct {
 	FormalElement
 }
 type Footer struct {
-	size Size
 	FormalElement
 }
 
@@ -128,9 +129,16 @@ func NewBody(s Size, name string) *Body {
 	}
 }
 
+//NewFooter return new footer
+func NewFooter(s Size, name string) *Footer {
+	return &Footer{
+		FormalElement: EmptyFormal(FooterElementType, s, name),
+	}
+}
+
 //NewLayout return LayoutElement by EmptyLayoutElemnt(Pointer)
-func NewLayout(kindof LayoutElementType, name string) *LayoutElement {
-	return EmptyLayout(kindof, name)
+func NewLayout(kindof LayoutElementType, s Size, name string) *LayoutElement {
+	return EmptyLayout(kindof, s, name)
 }
 
 //NewElement return empty Element
@@ -157,9 +165,10 @@ func EmptyFormal(formal FormalElementType, s Size, name string) FormalElement {
 }
 
 //EmptyLayout returns parent-nil layout
-func EmptyLayout(layout LayoutElementType, name string) *LayoutElement {
+func EmptyLayout(layout LayoutElementType, s Size, name string) *LayoutElement {
 	return &LayoutElement{
 		ElementBase: NewBase(name),
+		size:        s,
 		kindof:      layout,
 		parent:      nil,
 		children:    make([]IElement, 0),
