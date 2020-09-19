@@ -8,15 +8,11 @@ import (
 const (
 	_ CommonOption = iota
 	BorderOption
-)
-
-const (
-	_ ComponentOption = iota
+	FitParentOption
 	MarginOption
 	PaddingOption
-	WidthOption
-	HeightOption
 )
+
 const (
 	_ LayoutOption = iota
 	SpacingOption
@@ -34,6 +30,7 @@ type Option struct {
 	getHandleFunc OptionGetHandler
 	setHandleFunc OptionSetHandler
 	valueType     reflect.Type
+	Type          CommonOption
 }
 
 //RelLocation is location structure which is relative of parent
@@ -52,8 +49,8 @@ type Size struct {
 // Constructors
 //**********************
 
-//CreateOption Create designed option, if handlers nil, it is default in/out handler
-func CreateOption(valType reflect.Type, returnFunc OptionGetHandler, settingFunc OptionSetHandler) (opt *Option) {
+//NewOption Create designed option, if handlers nil, it is default in/out handler
+func NewOption(optType CommonOption, value interface{}, returnFunc OptionGetHandler, settingFunc OptionSetHandler) (opt *Option) {
 
 	if returnFunc == nil {
 		//Default
@@ -72,7 +69,9 @@ func CreateOption(valType reflect.Type, returnFunc OptionGetHandler, settingFunc
 	}
 
 	opt = &Option{}
-	opt.valueType = valType
+	opt.value = value
+	opt.Type = optType
+	opt.valueType = reflect.TypeOf(value)
 	opt.SetReturnFunc(returnFunc)
 	opt.SetSettingFunc(settingFunc)
 	return
@@ -102,6 +101,10 @@ func (s Size) Plus(number int) Size {
 		Width:  s.Width + n,
 	}
 	return size
+}
+func (rl *RelLocation) Add(number int) {
+	rl.X += number
+	rl.Y += number
 }
 
 //SetSettingFunc set Set func property func
