@@ -12,31 +12,46 @@ type ElementType uint8
 //InputType Types of Input Element
 type InputType uint8
 
+//OrientationType for stack layout
+type OrientationType uint8
+
 //CommonOption can be apply all types
 type CommonOption uint8
-
-//ComponentOption Type of styles
-type ComponentOption uint8
 
 //LayoutOption options
 type LayoutOption uint8
 
+//---------------------------------------------
+//---------------- Elements -------------------
+//---------------------------------------------
+
 //Load Formals like this order
 const (
 	_ FormalElementType = iota
-	HeadElementType
-	BodyElementType
-	FooterElementType
+	HeadFormalType
+	BodyFormalType
+	FooterFormalType
 )
 const (
 	_ LayoutElementType = iota
 	FreeLayoutType
 	StackLayoutType
 )
+
 const (
 	_ ElementType = iota
-	InputElementType
 	TextElementType
+	InputElementType
+)
+
+//---------------------------------------------
+//---------------- Option, Option Types -------
+//---------------------------------------------
+
+const (
+	_ OrientationType = iota
+	VerticalOrientation
+	HorizontalOrientation
 )
 const (
 	_ InputType = iota
