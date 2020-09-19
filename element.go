@@ -34,8 +34,8 @@ type iBaseElement interface {
 	SetName(string)
 	LoadAllOption() map[CommonOption]*Option
 	LoadOption(CommonOption) *Option
-	AddOption(CommonOption, *Option) error
-	SetOptionItself(CommonOption, *Option) error
+	AddOption(*Option) error
+	SetOption(*Option) error
 }
 
 //IFormal is a container of all of Formal objects. It must have iFormalElement

@@ -27,18 +27,20 @@ func (eb *ElementBase) LoadOption(opt CommonOption) *Option {
 	return nil
 }
 
-func (eb *ElementBase) AddOption(name CommonOption, opt *Option) error {
-	if _, exist := eb.publicOptions[name]; exist {
+func (eb *ElementBase) AddOption(opt *Option) error {
+	optType := opt.Type
+	if _, exist := eb.publicOptions[optType]; exist {
 		return ErrElementOptionAlreadyExist
 	}
 
-	eb.publicOptions[name] = opt
+	eb.publicOptions[optType] = opt
 	return nil
 }
 
-func (eb *ElementBase) SetOptionItself(name CommonOption, opt *Option) error {
-	if _, exist := eb.publicOptions[name]; exist {
-		eb.publicOptions[name] = opt
+func (eb *ElementBase) SetOption(opt *Option) error {
+	optType := opt.Type
+	if _, exist := eb.publicOptions[optType]; exist {
+		eb.publicOptions[optType] = opt
 		return nil
 	}
 
