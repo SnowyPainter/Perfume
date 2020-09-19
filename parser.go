@@ -120,15 +120,13 @@ func (p *Parseable) Element(e IElement) string {
 	parsed := p.content
 	for _, k := range p.findProperties() {
 		switch k {
-		case TypeProperty:
-			replace(&parsed, TypeProperty, fmt.Sprintf("%v", e.Type()))
 		case NameProperty:
 			replace(&parsed, NameProperty, e.GetName())
 		case ParentNameProperty:
 			replace(&parsed, ParentNameProperty, e.GetParent().GetName())
 		case RelLocationProperty:
 			relLoc := e.GetLocation()
-			locStr := fmt.Sprintf("%d, %d", relLoc.X, relLoc.Y)
+			locStr := fmt.Sprintf("%d, %d", relLoc.X(), relLoc.Y())
 			replace(&parsed, RelLocationProperty, locStr)
 		}
 	}
