@@ -9,6 +9,8 @@ func (r *Renderer) isNil(obj interface{}) bool {
 	return false
 }
 
+type StackElement func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location
+
 //Renderer render windows and children to terminal
 type Renderer struct {
 	printBuffer PrintBuffer
@@ -34,12 +36,21 @@ func callSequence(errors ...error) (int, error) {
 	return -1, nil
 }
 
-func bufferBorder(b *PrintBuffer, border string, start RelLocation, s Size) error {
-	if start.X < 0 || start.Y < 0 {
+//checkBorderExist return border opt exists and it vailed
+func checkBorderExist(baseElement iBaseElement) bool {
+	if opt := baseElement.LoadOption(BorderOption); opt != nil && opt.Get().(string) != "" {
+		return true
+	}
+	return false
+}
+
+//bufferBorder draw border in PrintBuffer
+func bufferBorder(b *PrintBuffer, border string, start Location, s Size) error {
+	if start.X() < 0 || start.Y() < 0 {
 		return ErrMinusSize
 	}
-	x := uint(start.X)
-	y := uint(start.Y)
+	x := uint(start.X())
+	y := uint(start.Y())
 
 	c, err := callSequence(
 		b.SetRow(border, y, x, s.Width),
@@ -53,7 +64,26 @@ func bufferBorder(b *PrintBuffer, border string, start RelLocation, s Size) erro
 	return nil
 }
 
-func applyStyleOptions(buffer *PrintBuffer, structLevel int, options map[CommonOption]*Option, elementLoc RelLocation, elementSize Size) {
+//bufferText draw text
+func bufferText(b *PrintBuffer, text string, loc Location) error {
+	x := uint(loc.X())
+	y := uint(loc.Y())
+	txtLen := uint(len(text))
+	if x+txtLen >= b.size.Width {
+		return ErrOutOfWidth
+	}
+	if y >= b.size.Height {
+		return ErrOutOfHeight
+	}
+
+	err := b.SetRow(text, y, x, x+txtLen)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func applyStyleOptions(buffer *PrintBuffer, options map[CommonOption]*Option, elementLoc Location, elementSize Size) {
 	for key, option := range options {
 		switch key {
 		case BorderOption:
@@ -62,30 +92,49 @@ func applyStyleOptions(buffer *PrintBuffer, structLevel int, options map[CommonO
 	}
 }
 
+func applyElementProperties(buffer *PrintBuffer, element IElement, location Location, size Size) {
+	switch element.Type() {
+	case TextElementType:
+		txtElement := element.(*Text)
+		txt := txtElement.Text()
+		width := int(element.Size().Width)
+		maxLen := len(txt)
+		if len(txt) > width {
+			maxLen = width
+		}
+		bufferText(buffer, txt[:maxLen], location)
+	case InputElementType:
+		//...
+	}
+}
+
 //Render render formals, layouts, elements to terminal
 func (r *Renderer) Render() {
 	window := r.window
-	elements := make([]string, 0)
-
+	printBufferAddress := &r.printBuffer
 	formalStartsByHeight := 0
-	elementLevel := 0
 
 	for _, formal := range window.GetFormalByOrder(true) {
-		elementLevel = 0 //Must be at top
-
+		borderExist := 0
 		formalElement, _ := window.FindFormal(formal)
-		formalLoc := NewRelativeLocation(elementLevel, formalStartsByHeight)
+		formalLoc := NewLocation(0, formalStartsByHeight)
 		formalSize := formalElement.Size()
 
-		applyStyleOptions(&r.printBuffer, elementLevel,
-			formalElement.LoadAllOption(), formalLoc, formalSize)
+		applyStyleOptions(printBufferAddress, formalElement.LoadAllOption(), formalLoc, formalSize)
+
+		if checkBorderExist(formalElement) {
+			borderExist = 1
+		}
 
 		for _, layout := range formalElement.GetChildren() {
-			elementLevel = 1 //Must be at top
 
 			layoutSize := layout.Size()
-			layoutLoc := NewRelativeLocation(elementLevel, formalStartsByHeight+elementLevel)
-
+			layoutLoc := NewLocation(borderExist, formalStartsByHeight+borderExist)
+			if checkBorderExist(layout) {
+				borderExist = 1
+			} else {
+				borderExist = 0
+			}
 			if opt := layout.LoadOption(FitParentOption); opt != nil {
 				if opt.Get().(bool) {
 					layoutSize = formalSize
@@ -93,14 +142,52 @@ func (r *Renderer) Render() {
 				}
 			}
 
-			applyStyleOptions(&r.printBuffer, elementLevel,
-				layout.LoadAllOption(), layoutLoc, layoutSize)
+			applyStyleOptions(printBufferAddress, layout.LoadAllOption(), layoutLoc, layoutSize)
 
-			for _, element := range layout.GetChildren() {
-				elementLevel = 2 //Must be at top
-				//Style Edit
+			elements := layout.GetChildren()
+			if layout.Type() == FreeLayoutType {
+				for _, element := range elements {
+					elementLoc := SumLocation(element.GetLocation(), layoutLoc.Plus(borderExist))
+					elementSize := element.Size()
+					applyElementProperties(printBufferAddress, element, elementLoc, elementSize)
+					applyStyleOptions(printBufferAddress, element.LoadAllOption(), elementLoc, elementSize)
+				}
+				continue
+			}
 
-				elements = append(elements, element.GetName())
+			stackLayout := layout.(*StackLayout)
+			orientation := stackLayout.Orientation
+			elementSpacing := stackLayout.Spacing
+			var stackElementFunc StackElement
+			if orientation == HorizontalOrientation {
+				stackElementFunc = func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location {
+					if i == 0 {
+						originLoc.SetX(*dirSum + originLoc.X())
+					} else {
+						originLoc.SetX(*dirSum + originLoc.X() + spacing)
+					}
+					*dirSum += int(size.Width)
+					return originLoc
+				}
+			} else { //Vertical
+				stackElementFunc = func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location {
+					if i == 0 {
+						originLoc.SetY(*dirSum + originLoc.Y())
+					} else {
+						originLoc.SetY(*dirSum + originLoc.Y() + spacing)
+					}
+					*dirSum += int(size.Height)
+					return originLoc
+				}
+			}
+			elementDir := 0
+			for i, element := range elements {
+				elementLoc := layoutLoc.Plus(borderExist)
+				elementSize := element.Size()
+				//Stack up elements..
+				elementLoc = stackElementFunc(i, elementSize, elementLoc, elementSpacing, &elementDir)
+				applyElementProperties(printBufferAddress, element, elementLoc, elementSize)
+				applyStyleOptions(printBufferAddress, element.LoadAllOption(), elementLoc, elementSize)
 			}
 		}
 
@@ -108,6 +195,7 @@ func (r *Renderer) Render() {
 		formalStartsByHeight += int(formalSize.Height)
 	}
 
+	//Later, disunite this snippet to channel
 	//Print to console
 	for i := uint(0); i < window.size.Height; i++ {
 		fmt.Println(r.printBuffer.GetLine(i))
