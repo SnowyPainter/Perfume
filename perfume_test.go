@@ -2,7 +2,6 @@ package perfume
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -22,21 +21,22 @@ func createWindow() (*Window, error) {
 	foot := NewFooter(f, "Footer")
 	hlayout := NewLayout(StackLayoutType, h.Plus(-2), "HeadLayout")
 
-	borderOpt := CreateOption(reflect.TypeOf(""), nil, nil)
-	borderOpt.Set("*")
-	head.AddOption(BorderOption, borderOpt.Clone())
+	borderOpt := NewOption(BorderOption, "*", nil, nil)
+	fitOpt := NewOption(FitParentOption, true, nil, nil)
+
+	head.AddOption(borderOpt.Clone())
 
 	borderOpt.Set("=")
-	body.AddOption(BorderOption, borderOpt.Clone())
+	body.AddOption(borderOpt.Clone())
 
 	borderOpt.Set("-")
-	foot.AddOption(BorderOption, borderOpt.Clone())
+	foot.AddOption(borderOpt.Clone())
 
 	borderOpt.Set("0")
-	hlayout.AddOption(BorderOption, borderOpt.Clone())
-
+	hlayout.AddOption(borderOpt.Clone())
+	hlayout.AddOption(fitOpt)
 	c, err := callSequence(
-		head.AddChild(hlayout),
+		body.AddChild(hlayout),
 		window.Add(body),
 		window.Add(head),
 		window.Add(foot),
