@@ -3,6 +3,12 @@ package perfume
 //******Implements******
 
 //ElementBase
+
+//Size return size itself
+func (eb *ElementBase) Size() Size {
+	return eb.size
+}
+
 //GetName return name(string)
 func (eb *ElementBase) GetName() string {
 	return eb.name
@@ -59,11 +65,6 @@ func (f *FormalElement) Type() FormalElementType {
 	return f.kindof
 }
 
-//Size func returns its own size
-func (f *FormalElement) Size() Size {
-	return f.size
-}
-
 //GetChildren func returns all of its layout children
 func (f *FormalElement) GetChildren() []ILayout {
 	return f.children
@@ -92,11 +93,6 @@ func (l *LayoutElement) ChildrenCount() int {
 //Type returns LayoutElementType
 func (l LayoutElement) Type() LayoutElementType {
 	return l.kindof
-}
-
-//Size func returns its own size
-func (l LayoutElement) Size() Size {
-	return l.size
 }
 
 //GetParent returns partent(IFormalElement)
@@ -152,4 +148,15 @@ func (e *Element) SetParent(formal ILayout) error {
 	}
 	e.parent = formal
 	return nil
+}
+
+//SetLocation set relative loc
+func (e *Element) SetLocation(loc RelLocation) {
+	e.location = loc
+}
+
+//Element Implementions ... - Text..input... etc,
+
+func (t Text) Text() string {
+	return t.value
 }

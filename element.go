@@ -2,7 +2,6 @@ package perfume
 
 //iFormalElement is something that contains ILayouts
 type iFormalElement interface {
-	Size() Size
 	GetChildren() []ILayout
 	ChildrenCount() int
 	AddChild(ILayout) error
@@ -11,7 +10,6 @@ type iFormalElement interface {
 
 //iLayoutElement is something whose parent is iFormalElement and it has only IElement children
 type iLayoutElement interface {
-	Size() Size
 	GetParent() IFormal
 	GetChildren() []IElement
 	ChildrenCount() int
@@ -25,11 +23,13 @@ type iElement interface {
 	GetLocation() RelLocation
 	GetParent() ILayout
 	SetParent(ILayout) error
+	SetLocation(RelLocation)
 	Type() ElementType
 }
 
 //iBaseElement is the base interface of all elements(layout,formals ...)
 type iBaseElement interface {
+	Size() Size
 	GetName() string
 	SetName(string)
 	LoadAllOption() map[CommonOption]*Option
@@ -59,7 +59,6 @@ type IElement interface {
 //FormalElement contains Layout children. it's a structure
 type FormalElement struct {
 	ElementBase
-	size     Size
 	children []ILayout
 	kindof   FormalElementType
 }
@@ -67,7 +66,6 @@ type FormalElement struct {
 //LayoutElement has IElement children and iFormalElement parent
 type LayoutElement struct {
 	ElementBase
-	size     Size
 	parent   IFormal
 	children []IElement
 	kindof   LayoutElementType
@@ -77,13 +75,14 @@ type LayoutElement struct {
 type Element struct {
 	ElementBase
 	location RelLocation
-	kindof   ElementType
 	parent   ILayout
+	kindof   ElementType
 }
 
 //ElementBase is structure that is base of all of elements
 type ElementBase struct {
 	name          string
+	size          Size
 	publicOptions map[CommonOption]*Option
 }
 
@@ -103,6 +102,8 @@ type FreeLayout struct {
 	LayoutElement
 }
 type StackLayout struct {
+	Orientation OrientationType
+	Spacing     int
 	LayoutElement
 }
 
@@ -112,75 +113,6 @@ type Input struct {
 	Element
 }
 type Text struct {
+	value string
 	Element
-}
-
-//NewHead return new head
-func NewHead(s Size, name string) *Head {
-	return &Head{
-		FormalElement: EmptyFormal(HeadElementType, s, name),
-	}
-}
-
-//NewBody return new body
-func NewBody(s Size, name string) *Body {
-	return &Body{
-		FormalElement: EmptyFormal(BodyElementType, s, name),
-	}
-}
-
-//NewFooter return new footer
-func NewFooter(s Size, name string) *Footer {
-	return &Footer{
-		FormalElement: EmptyFormal(FooterElementType, s, name),
-	}
-}
-
-//NewLayout return LayoutElement by EmptyLayoutElemnt(Pointer)
-func NewLayout(kindof LayoutElementType, s Size, name string) *LayoutElement {
-	return EmptyLayout(kindof, s, name)
-}
-
-//NewElement return empty Element
-func NewElement(kindof ElementType, name string, loc RelLocation) *Element {
-	return EmptyElement(kindof, loc, name)
-}
-
-//NewBase return baseelement -> Root for all ofvs
-func NewBase(name string) ElementBase {
-	return ElementBase{
-		name:          name,
-		publicOptions: make(map[CommonOption]*Option),
-	}
-}
-
-//EmptyFormal returns a FormalElement object whose children init
-func EmptyFormal(formal FormalElementType, s Size, name string) FormalElement {
-	return FormalElement{
-		size:        s,
-		kindof:      formal,
-		children:    make([]ILayout, 0),
-		ElementBase: NewBase(name),
-	}
-}
-
-//EmptyLayout returns parent-nil layout
-func EmptyLayout(layout LayoutElementType, s Size, name string) *LayoutElement {
-	return &LayoutElement{
-		ElementBase: NewBase(name),
-		size:        s,
-		kindof:      layout,
-		parent:      nil,
-		children:    make([]IElement, 0),
-	}
-}
-
-//EmptyElement returns layoutless element(dependenced)
-func EmptyElement(element ElementType, loc RelLocation, name string) *Element {
-	return &Element{
-		ElementBase: NewBase(name),
-		kindof:      element,
-		parent:      nil,
-		location:    loc,
-	}
 }
