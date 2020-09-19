@@ -87,8 +87,10 @@ func (buffer *PrintBuffer) SetColumn(pattern string, col uint, start uint, end u
 	if ok, err := startEndIdxCheck(start, end, size.Height); !ok {
 		return err
 	} else if col >= size.Width {
+		//fmt.Println("col,size.width : ", col, size.Width)
 		return ErrOverSize
 	} else if len(pattern) > setLength {
+		//fmt.Println("len(pattern),setLength: ", len(pattern), setLength)
 		return ErrOverSize
 	}
 
