@@ -19,24 +19,38 @@ func createWindow() (*Window, error) {
 	head := NewHead(h, "Head")
 	body := NewBody(b, "Body")
 	foot := NewFooter(f, "Footer")
-	hlayout := NewLayout(StackLayoutType, h.Plus(-2), "HeadLayout")
+	bodyLayout := NewStackLayout("BodyLayout", b.Plus(-2), HorizontalOrientation, 1)
+	footLayout := NewFreeLayout("FootLayout", b.Plus(-2))
 
-	borderOpt := NewOption(BorderOption, "*", nil, nil)
-	fitOpt := NewOption(FitParentOption, true, nil, nil)
+	t1 := NewText("MyText1", "hello,", NewSize(1, 6))
+	t2 := NewText("MyText2", "world!", NewSize(1, 6))
+	t3 := NewText("MyText3", "It is foot layout", NewSize(1, foot.Size().Width-2))
 
+	t3Loc := NewRelativeLocation(int(foot.Size().Width/2), 0)
+	t3.SetLocation(t3Loc)
+
+	borderOpt := NewOption(BorderOption, "")
+	fitOpt := NewOption(FitParentOption, false)
+
+	borderOpt.Set("hd-")
 	head.AddOption(borderOpt.Clone())
 
-	borderOpt.Set("=")
+	borderOpt.Set("body-")
 	body.AddOption(borderOpt.Clone())
 
-	borderOpt.Set("-")
+	borderOpt.Set("ft-")
 	foot.AddOption(borderOpt.Clone())
 
-	borderOpt.Set("0")
-	hlayout.AddOption(borderOpt.Clone())
-	hlayout.AddOption(fitOpt)
+	borderOpt.Set("stcklayut-")
+	bodyLayout.AddOption(borderOpt.Clone())
+	bodyLayout.AddOption(fitOpt)
+
 	c, err := callSequence(
-		body.AddChild(hlayout),
+		bodyLayout.AddChild(t1),
+		bodyLayout.AddChild(t2),
+		footLayout.AddChild(t3),
+		body.AddChild(bodyLayout),
+		foot.AddChild(footLayout),
 		window.Add(body),
 		window.Add(head),
 		window.Add(foot),
@@ -64,6 +78,6 @@ func printRendererStruct(r *Renderer) {
 		WindowLine:   NewParseable("Window || (", SizeProperty, ") || (", ChildrenLenProperty, ") ||\n\n"),
 		FormalsLine:  NewParseable("-- (", NameProperty, ") Formal --\n"),
 		LayoutsLine:  NewParseable("\t└--(", TypeProperty, ")layout ", NameProperty, "\n"),
-		ElementsLine: NewParseable("\t\t└--(", TypeProperty, ")element LOC:", RelLocationProperty, "\n"),
+		ElementsLine: NewParseable("\t\t└-- element LOC:", RelLocationProperty, "\n"),
 	})
 }
