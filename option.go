@@ -9,14 +9,6 @@ const (
 	_ CommonOption = iota
 	BorderOption
 	FitParentOption
-	MarginOption
-	PaddingOption
-)
-
-const (
-	_ LayoutOption = iota
-	SpacingOption
-	OrientationOption
 )
 
 //OptionGetHandler handle value when calls Get
@@ -33,10 +25,23 @@ type Option struct {
 	Type          CommonOption
 }
 
+type iLocation interface {
+	X() int
+	Y() int
+}
+type locationData struct {
+	x int
+	y int
+}
+
 //RelLocation is location structure which is relative of parent
 type RelLocation struct {
-	X int
-	Y int
+	locationData
+}
+
+//Location is static location in console
+type Location struct {
+	locationData
 }
 
 //Size is a structure which has Height and Width
@@ -50,21 +55,16 @@ type Size struct {
 //**********************
 
 //NewOption Create designed option, if handlers nil, it is default in/out handler
-func NewOption(optType CommonOption, value interface{}, returnFunc OptionGetHandler, settingFunc OptionSetHandler) (opt *Option) {
+func NewOption(optType CommonOption, value interface{}) (opt *Option) {
 
-	if returnFunc == nil {
-		//Default
-		returnFunc = func(v interface{}) interface{} {
-			return v
-		}
+	returnFunc := func(v interface{}) interface{} {
+		return v
 	}
-	if settingFunc == nil {
-		//Default
-		settingFunc = func(opt *Option, v interface{}) {
-			if opt != nil {
-				opt.value = v
-				opt.valueType = reflect.TypeOf(v)
-			}
+
+	settingFunc := func(opt *Option, v interface{}) {
+		if opt != nil {
+			opt.value = v
+			opt.valueType = reflect.TypeOf(v)
 		}
 	}
 
@@ -77,20 +77,60 @@ func NewOption(optType CommonOption, value interface{}, returnFunc OptionGetHand
 	return
 }
 
-//NewRelativeLocation makes new RelLocation object
-func NewRelativeLocation(x int, y int) RelLocation {
-	return RelLocation{
-		X: x, Y: y,
+//newLocationData makes new Locationdata
+func newLocationData(x, y int) locationData {
+	return locationData{
+		x: x, y: y,
 	}
 }
 
+//NewRelativeLocation makes new RelLocation object
+func NewRelativeLocation(x, y int) RelLocation {
+	return RelLocation{
+		locationData: newLocationData(x, y),
+	}
+}
+
+//NewLocation makes new Location object
+func NewLocation(x, y int) Location {
+	return Location{
+		locationData: newLocationData(x, y),
+	}
+}
+
+func (l locationData) X() int {
+	return l.x
+}
+func (l locationData) Y() int {
+	return l.y
+}
+func (l *locationData) SetX(n int) {
+	l.x = n
+}
+func (l *locationData) SetY(n int) {
+	l.y = n
+}
+
+//Location, RelLocation
+func (l Location) Plus(number int) Location {
+	return NewLocation(
+		l.X()+number,
+		l.Y()+number,
+	)
+}
+
+func SumLocation(location1, location2 iLocation) Location {
+	return NewLocation(location1.X()+location2.X(), location1.Y()+location2.Y())
+}
+
 //NewSize makes new Size object by height and width
-func NewSize(height uint, width uint) Size {
+func NewSize(height, width uint) Size {
 	return Size{
 		Height: height, Width: width,
 	}
 }
 
+//Plus return number added Size
 func (s Size) Plus(number int) Size {
 	n := uint(number)
 	if s.Height-n < 1 || s.Width-n < 1 {
@@ -101,10 +141,6 @@ func (s Size) Plus(number int) Size {
 		Width:  s.Width + n,
 	}
 	return size
-}
-func (rl *RelLocation) Add(number int) {
-	rl.X += number
-	rl.Y += number
 }
 
 //SetSettingFunc set Set func property func
