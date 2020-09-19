@@ -53,7 +53,7 @@ func bufferBorder(b *PrintBuffer, border string, start RelLocation, s Size) erro
 	return nil
 }
 
-func applyOptions(buffer *PrintBuffer, options map[CommonOption]*Option, elementLoc RelLocation, elementSize Size) {
+func applyStyleOptions(buffer *PrintBuffer, structLevel int, options map[CommonOption]*Option, elementLoc RelLocation, elementSize Size) {
 	for key, option := range options {
 		switch key {
 		case BorderOption:
@@ -74,10 +74,11 @@ func (r *Renderer) Render() {
 		elementLevel = 0 //Must be at top
 
 		formalElement, _ := window.FindFormal(formal)
-		formalSize := formalElement.Size()
 		formalLoc := NewRelativeLocation(elementLevel, formalStartsByHeight)
+		formalSize := formalElement.Size()
 
-		applyOptions(&r.printBuffer, formalElement.LoadAllOption(), formalLoc, formalSize)
+		applyStyleOptions(&r.printBuffer, elementLevel,
+			formalElement.LoadAllOption(), formalLoc, formalSize)
 
 		for _, layout := range formalElement.GetChildren() {
 			elementLevel = 1 //Must be at top
@@ -85,10 +86,18 @@ func (r *Renderer) Render() {
 			layoutSize := layout.Size()
 			layoutLoc := NewRelativeLocation(elementLevel, formalStartsByHeight+elementLevel)
 
-			applyOptions(&r.printBuffer, layout.LoadAllOption(), layoutLoc, layoutSize)
+			if opt := layout.LoadOption(FitParentOption); opt != nil {
+				if opt.Get().(bool) {
+					layoutSize = formalSize
+					layoutLoc = formalLoc
+				}
+			}
+
+			applyStyleOptions(&r.printBuffer, elementLevel,
+				layout.LoadAllOption(), layoutLoc, layoutSize)
 
 			for _, element := range layout.GetChildren() {
-				elementLevel = 2
+				elementLevel = 2 //Must be at top
 				//Style Edit
 
 				elements = append(elements, element.GetName())
