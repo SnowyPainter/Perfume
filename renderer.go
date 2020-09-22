@@ -197,8 +197,16 @@ func (r *Renderer) Render() {
 
 	//Later, disunite this snippet to channel
 	//Print to console
+
+	fullscreen := getFullScreen()
+	end := ""
 	for i := uint(0); i < window.size.Height; i++ {
-		fmt.Println(r.printBuffer.GetLine(i))
+		if fullscreen.Width <= window.size.Width {
+			end = ""
+		} else {
+			end = "\n"
+		}
+		fmt.Printf("%s%s", r.printBuffer.GetLine(i), end)
 	}
 
 }
