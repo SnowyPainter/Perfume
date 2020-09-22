@@ -1,37 +1,40 @@
 package perfume
 
-import "sort"
+import (
+	"sort"
 
-const (
-	FULLSIZE = 0
+	"github.com/nathan-fiscaletti/consolesize-go"
 )
+
+//getFullScreen return fullscreen col/rows
+func getFullScreen() Size {
+	cols, rows := consolesize.GetConsoleSize()
+	return NewSize(uint(rows), uint(cols))
+}
 
 //Window is the base of Perfume as Builder
 type Window struct {
-	size    Size
-	formals map[FormalElementType]IFormal
+	isFullScreen bool
+	size         Size
+	formals      map[FormalElementType]IFormal
 }
 
-//NewWindow return new window
+//NewWindow return new window 0 doesn't work & doesn't work except terminal console
 func NewWindow(s Size) (*Window, error) {
-	/*w, h, err := terminal.GetSize(0)
-	if err != nil {
-		return nil, err
-	}
-	width := uint(w)
-	height := uint(h)
-	fmt.Println("Width : ", width, " Height : ", height)
-	if s.Width == FULLSIZE {
-		s.Width = width
-	}
-	if s.Height == FULLSIZE {
-		s.Height = height
-	}
-	if height > s.Width || height > s.Height {
-		return nil, ErrOutOfWidth
-	}
-	*/
+	fullscreen := getFullScreen()
 
+	if s.Width == FullSize {
+		s.Width = fullscreen.Width
+	}
+	if s.Height == FullSize {
+		s.Height = fullscreen.Height
+	}
+
+	if fullscreen.Width < s.Width {
+		return nil, ErrOutOfWidth
+	} else if fullscreen.Height < s.Height {
+		return nil, ErrOutOfHeight
+	}
 	return &Window{
 		size:    s,
 		formals: make(map[FormalElementType]IFormal),
@@ -62,6 +65,7 @@ func (w *Window) Add(f IFormal) error {
 	}
 
 	w.formals[f.Type()] = f
+
 	return nil
 }
 
