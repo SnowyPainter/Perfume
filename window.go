@@ -41,6 +41,10 @@ func NewWindow(s Size) (*Window, error) {
 	}, nil
 }
 
+func (w Window) Size() Size {
+	return w.size
+}
+
 //Add adds formal element to window
 func (w *Window) Add(f IFormal) error {
 
