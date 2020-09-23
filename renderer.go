@@ -1,6 +1,11 @@
 package perfume
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
+)
 
 func (r *Renderer) isNil(obj interface{}) bool {
 	if obj == nil {
@@ -13,13 +18,34 @@ type StackElement func(i int, size Size, originLoc Location, spacing int, dirSum
 
 //Renderer render windows and children to terminal
 type Renderer struct {
+	clear       func()
 	printBuffer PrintBuffer
 	window      *Window
 }
 
 //NewRenderer returns renderer pointer it can be nil
 func NewRenderer(w *Window) *Renderer {
-	return &Renderer{window: w, printBuffer: NewPrintBuffer(w.size)}
+	goos := runtime.GOOS
+	var cf func()
+	if goos == "linux" {
+		cf = func() {
+			cmd := exec.Command("clear") //Linux example, its tested
+			cmd.Stdout = os.Stdout
+			cmd.Run()
+		}
+	} else if goos == "windows" {
+		cf = func() {
+			cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
+			cmd.Stdout = os.Stdout
+			cmd.Run()
+		}
+	}
+
+	return &Renderer{
+		window:      w,
+		printBuffer: NewPrintBuffer(w.size),
+		clear:       cf,
+	}
 }
 
 //SetWindow sets window of itself it can be nil
@@ -209,6 +235,10 @@ func (r *Renderer) Render() {
 		fmt.Printf("%s%s", r.printBuffer.GetLine(i), end)
 	}
 
+}
+
+func (r Renderer) Clear() {
+	r.clear()
 }
 
 //PrintStruct prints information of window
