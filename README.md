@@ -1,5 +1,12 @@
-Perfume 구조와 개발 가이드
+Perfume Guide & Example
 ======================
+
+# Example
+
+## 1. Loveletter.go
+![loveletter](./example/loveletterexe.png)
+모든 formal과 free, stack layout을 사용하여 구현합니다.  
+# Guide
 ## 0. Window 구조 Format Tree 뷰어
 --------------------
 <details>
@@ -141,9 +148,20 @@ _ = printBuffer.SetColumn(border, size.Width-1, 0, size.Height)
 ## 4. 렌더러 (Renderer.go)
 -------------------
 
+속성과 옵션을 렌더링 합니다.
 ```
-미완성
+renderer.PrintStruct(ElementsPrintDepth, map[PrintLineForm]*Parseable{
+	WindowLine:   NewParseable("Window || (%Size%) || (%ChildrenLen%) ||\n\n"),
+	FormalsLine:  NewParseable("-- (%Name%) Formal --\n"),
+	LayoutsLine:  NewParseable("\t└--(%Type%)layout %Name%\n"),
+	ElementsLine: NewParseable("\t\t└--(%Type%)element LOC:%RelLocation%\n"),
+})
 ```
+위 PrintStruct 함수로 tree 형으로써 자유로운 포맷의 구조를 출력할 수 있습니다.
+
+```applyElementProperties``` 함수와 ```applyStyleOptions``` 함수가 모든 옵션과 스타일 적용을 도맡습니다.  
+
+최종 출력은 ```fmt.Printf```함수로 행합니다.
 
 ## 5. 옵션 (Option.go) 
 
