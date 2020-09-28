@@ -187,22 +187,14 @@ func (r *Renderer) Render() {
 			var stackElementFunc StackElement
 			if orientation == HorizontalOrientation {
 				stackElementFunc = func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location {
-					if i == 0 {
-						originLoc.SetX(*dirSum + originLoc.X())
-					} else {
-						originLoc.SetX(*dirSum + originLoc.X() + spacing)
-					}
-					*dirSum += int(size.Width)
+					originLoc.SetX(*dirSum + originLoc.X())
+					*dirSum += int(size.Width) + spacing
 					return originLoc
 				}
 			} else { //Vertical
 				stackElementFunc = func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location {
-					if i == 0 {
-						originLoc.SetY(*dirSum + originLoc.Y())
-					} else {
-						originLoc.SetY(*dirSum + originLoc.Y() + spacing)
-					}
-					*dirSum += int(size.Height)
+					originLoc.SetY(*dirSum + originLoc.Y())
+					*dirSum += int(size.Height) + spacing
 					return originLoc
 				}
 			}
