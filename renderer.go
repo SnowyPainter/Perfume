@@ -83,6 +83,14 @@ func checkBorderExist(baseElement iBaseElement) bool {
 	return false
 }
 
+//checkChanges check exists changes from printbuffer
+func checkChanges(pb PrintBuffer) bool {
+	if c, r := pb.GetChanges(); len(c) <= 0 && len(r) <= 0 {
+		return false
+	}
+	return true
+}
+
 //bufferBorder draw border in PrintBuffer
 func bufferBorder(b *PrintBuffer, border string, start Location, s Size) error {
 	if start.X() < 0 || start.Y() < 0 {
@@ -148,8 +156,8 @@ func applyElementProperties(buffer *PrintBuffer, element IElement, location Loca
 	}
 }
 
-//Render render formals, layouts, elements to terminal
-func (r *Renderer) Render() {
+//Buffer buffer strings to print buffer, so, it make non-applied buffers
+func (r *Renderer) Buffer() {
 	window := r.window
 	printBufferAddress := &r.printBuffer
 	formalStartsByHeight := 0
@@ -218,13 +226,18 @@ func (r *Renderer) Render() {
 			}
 		}
 
-		// Summing
 		formalStartsByHeight += int(formalSize.Height)
 	}
+}
+
+//Render render formals, layouts, elements to terminal & make buffer apply to terminal
+func (r *Renderer) Render() {
+	if !checkChanges(r.printBuffer) {
+		return
+	}
+	window := r.window
 
 	//Later, disunite this snippet to channel
-	//Print to console
-
 	fullscreen := getFullScreen()
 	end := ""
 	for i := uint(0); i < window.size.Height; i++ {
@@ -235,12 +248,14 @@ func (r *Renderer) Render() {
 		}
 		fmt.Printf("%s%s", r.printBuffer.GetLine(i), end)
 	}
-
+	r.printBuffer.ApplyChanges()
 }
 
-//Clear the terminal
+//Clear clear terminal not even clear the terminal, check changes and clear organically
 func (r Renderer) Clear() {
-	r.clear()
+	if checkChanges(r.printBuffer) {
+		r.clear()
+	}
 }
 
 //PrintStruct prints information of window
