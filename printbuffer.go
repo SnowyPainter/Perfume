@@ -56,21 +56,34 @@ func getFillPattern(length int, pattern string) string {
 	return patternGroup
 }
 
+func (buffer *PrintBuffer) getRow(row, start, end uint) string {
+	rowStart := buffer.size.Width * row
+	return buffer.buffer[rowStart+start : rowStart+end]
+}
+func (buffer *PrintBuffer) getCol(col, start, end uint) string {
+	val := make([]rune, end-start)
+	buff := []rune(buffer.buffer)
+	for i := start; i < end; i++ {
+		val[i-start] = buff[i*buffer.size.Width+col]
+	}
+	return string(val)
+}
+
 //SetRow set row 0 ~ width
 func (buffer *PrintBuffer) SetRow(pattern string, row uint, start uint, end uint) error {
 	size := buffer.size
 	startIdx := int(row*size.Width + start)
 	setLength := int(end - start)
-
+	text := getFillPattern(setLength, pattern)
 	if ok, err := startEndIdxCheck(start, end, size.Width); !ok {
 		return err
 	} else if row >= size.Height {
 		return ErrOverSize
 	} else if len(pattern) > setLength {
 		return ErrOverSize
+	} else if text == buffer.getRow(row, start, end) {
+		return nil
 	}
-
-	text := getFillPattern(setLength, pattern)
 
 	buffer.buffer = insert(buffer.buffer, startIdx, text)
 
@@ -83,18 +96,17 @@ func (buffer *PrintBuffer) SetRow(pattern string, row uint, start uint, end uint
 func (buffer *PrintBuffer) SetColumn(pattern string, col uint, start uint, end uint) error {
 	size := buffer.size
 	setLength := int(end - start)
-
+	text := getFillPattern(setLength, pattern)
 	if ok, err := startEndIdxCheck(start, end, size.Height); !ok {
 		return err
 	} else if col >= size.Width {
-		//fmt.Println("col,size.width : ", col, size.Width)
 		return ErrOverSize
 	} else if len(pattern) > setLength {
-		//fmt.Println("len(pattern),setLength: ", len(pattern), setLength)
 		return ErrOverSize
+	} else if text == buffer.getCol(col, start, end) {
+		return nil
 	}
 
-	text := getFillPattern(setLength, pattern)
 	buff := []rune(buffer.buffer)
 	for i := start; i < end; i++ {
 		row := i * size.Width
