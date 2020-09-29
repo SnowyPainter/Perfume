@@ -14,7 +14,20 @@ func (r *Renderer) isNil(obj interface{}) bool {
 	return false
 }
 
-type StackElement func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location
+//GetLocationFromStackElement return absolute location. it must be called continuously with dirLocSum(location direction value(x,y) sum)
+type GetLocationFromStackElement func(i int, size Size, originLoc Location, spacing int, dirLocSum *int) Location
+
+var getLocationFromHorizontalStackElement GetLocationFromStackElement = func(i int, size Size, originLoc Location, spacing int, dirLocSum *int) Location {
+	originLoc.SetX(*dirLocSum + originLoc.X())
+	*dirLocSum += int(size.Width) + spacing
+	return originLoc
+}
+
+var getLocationFromVerticalStackElement GetLocationFromStackElement = func(i int, size Size, originLoc Location, spacing int, dirLocSum *int) Location {
+	originLoc.SetY(*dirLocSum + originLoc.Y())
+	*dirLocSum += int(size.Height) + spacing
+	return originLoc
+}
 
 //Renderer render windows and children to terminal
 type Renderer struct {
@@ -118,6 +131,7 @@ func applyStyleOptions(buffer *PrintBuffer, options map[CommonOption]*Option, el
 	}
 }
 
+//applyElementProperties only apply properties for Element
 func applyElementProperties(buffer *PrintBuffer, element IElement, location Location, size Size) {
 	switch element.Type() {
 	case TextElementType:
@@ -146,6 +160,7 @@ func (r *Renderer) Render() {
 		formalLoc := NewLocation(0, formalStartsByHeight)
 		formalSize := formalElement.Size()
 
+		//apply formal options
 		applyStyleOptions(printBufferAddress, formalElement.LoadAllOption(), formalLoc, formalSize)
 
 		if checkBorderExist(formalElement) {
@@ -168,9 +183,11 @@ func (r *Renderer) Render() {
 				}
 			}
 
+			//apply layout options
 			applyStyleOptions(printBufferAddress, layout.LoadAllOption(), layoutLoc, layoutSize)
 
 			elements := layout.GetChildren()
+
 			if layout.Type() == FreeLayoutType {
 				for _, element := range elements {
 					elementLoc := SumLocation(element.GetLocation(), layoutLoc.Plus(borderExist))
@@ -183,27 +200,19 @@ func (r *Renderer) Render() {
 
 			stackLayout := layout.(*StackLayout)
 			orientation := stackLayout.Orientation
+			elementDirectionSum := 0
 			elementSpacing := stackLayout.Spacing
-			var stackElementFunc StackElement
-			if orientation == HorizontalOrientation {
-				stackElementFunc = func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location {
-					originLoc.SetX(*dirSum + originLoc.X())
-					*dirSum += int(size.Width) + spacing
-					return originLoc
-				}
-			} else { //Vertical
-				stackElementFunc = func(i int, size Size, originLoc Location, spacing int, dirSum *int) Location {
-					originLoc.SetY(*dirSum + originLoc.Y())
-					*dirSum += int(size.Height) + spacing
-					return originLoc
-				}
+			stackElementFunc := getLocationFromHorizontalStackElement
+			if orientation == VerticalOrientation {
+				stackElementFunc = getLocationFromVerticalStackElement
 			}
-			elementDir := 0
+
 			for i, element := range elements {
-				elementLoc := layoutLoc.Plus(borderExist)
 				elementSize := element.Size()
-				//Stack up elements..
-				elementLoc = stackElementFunc(i, elementSize, elementLoc, elementSpacing, &elementDir)
+
+				elementLoc := layoutLoc.Plus(borderExist)
+				elementLoc = stackElementFunc(i, elementSize, elementLoc, elementSpacing, &elementDirectionSum)
+
 				applyElementProperties(printBufferAddress, element, elementLoc, elementSize)
 				applyStyleOptions(printBufferAddress, element.LoadAllOption(), elementLoc, elementSize)
 			}
@@ -229,6 +238,7 @@ func (r *Renderer) Render() {
 
 }
 
+//Clear the terminal
 func (r Renderer) Clear() {
 	r.clear()
 }
