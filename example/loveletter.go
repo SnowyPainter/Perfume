@@ -85,6 +85,8 @@ func main() {
 
 	r := NewRenderer(window)
 
+	//Static render
+	r.Confirm()
 	r.Clear()
 	r.Render()
 }
