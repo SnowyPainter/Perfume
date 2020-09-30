@@ -83,14 +83,6 @@ func checkBorderExist(baseElement iBaseElement) bool {
 	return false
 }
 
-//checkChanges check exists changes from printbuffer
-func checkChanges(pb PrintBuffer) bool {
-	if c, r := pb.GetChanges(); len(c) <= 0 && len(r) <= 0 {
-		return false
-	}
-	return true
-}
-
 //bufferBorder draw border in PrintBuffer
 func bufferBorder(b *PrintBuffer, border string, start Location, s Size) error {
 	if start.X() < 0 || start.Y() < 0 {
@@ -156,8 +148,8 @@ func applyElementProperties(buffer *PrintBuffer, element IElement, location Loca
 	}
 }
 
-//Buffer buffer strings to print buffer, so, it make non-applied buffers
-func (r *Renderer) Buffer() {
+//Confirm convert style to string & provide to print buffer, so, it make non-applied buffers & return does it changed
+func (r *Renderer) Confirm() bool {
 	window := r.window
 	printBufferAddress := &r.printBuffer
 	formalStartsByHeight := 0
@@ -228,13 +220,15 @@ func (r *Renderer) Buffer() {
 
 		formalStartsByHeight += int(formalSize.Height)
 	}
+
+	if c, r := printBufferAddress.GetChanges(); len(c) <= 0 && len(r) <= 0 {
+		return false //Not changed
+	}
+	return true
 }
 
 //Render render formals, layouts, elements to terminal & make buffer apply to terminal
 func (r *Renderer) Render() {
-	if !checkChanges(r.printBuffer) {
-		return
-	}
 	window := r.window
 
 	//Later, disunite this snippet to channel
@@ -253,9 +247,7 @@ func (r *Renderer) Render() {
 
 //Clear clear terminal not even clear the terminal, check changes and clear organically
 func (r Renderer) Clear() {
-	if checkChanges(r.printBuffer) {
-		r.clear()
-	}
+	r.clear()
 }
 
 //PrintStruct prints information of window
