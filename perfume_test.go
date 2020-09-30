@@ -85,8 +85,9 @@ func TestMain(t *testing.T) {
 	r := NewRenderer(window)
 
 	for {
-		r.Buffer()
-		r.Clear()
-		r.Render()
+		if changed := r.Confirm(); changed {
+			r.Clear()
+			r.Render()
+		}
 	}
 }
