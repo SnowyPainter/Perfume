@@ -71,15 +71,21 @@ func (f *FormalElement) GetChildren() []ILayout {
 }
 
 //AddChild func adds a ILayout to children property
-func (f *FormalElement) AddChild(child ILayout) error {
-	if child == nil {
+func (f *FormalElement) AddChild(children ...ILayout) error {
+	if len(children) < 0 {
 		return ErrChildIsNil
 	}
-	err := child.SetParent(f)
-	if err != nil {
-		return err
+	for _, child := range children {
+		if child == nil {
+			return ErrChildIsNil
+		}
+		err := child.SetParent(f)
+		if err != nil {
+			return err
+		}
+		f.children = append(f.children, child)
 	}
-	f.children = append(f.children, child)
+
 	return nil
 }
 
@@ -106,12 +112,18 @@ func (l *LayoutElement) GetChildren() []IElement {
 }
 
 //AddChild adds element on children(IElement pointer)
-func (l *LayoutElement) AddChild(element IElement) error {
-	if element == nil {
+func (l *LayoutElement) AddChild(elements ...IElement) error {
+	if len(elements) < 0 {
 		return ErrChildIsNil
 	}
-	element.SetParent(l)
-	l.children = append(l.children, element)
+	for _, element := range elements {
+		if element == nil {
+			return ErrChildIsNil
+		}
+		element.SetParent(l)
+		l.children = append(l.children, element)
+	}
+
 	return nil
 }
 

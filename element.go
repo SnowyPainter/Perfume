@@ -4,7 +4,7 @@ package perfume
 type iFormalElement interface {
 	GetChildren() []ILayout
 	ChildrenCount() int
-	AddChild(ILayout) error
+	AddChild(...ILayout) error
 	Type() FormalElementType
 }
 
@@ -13,7 +13,7 @@ type iLayoutElement interface {
 	GetParent() IFormal
 	GetChildren() []IElement
 	ChildrenCount() int
-	AddChild(IElement) error
+	AddChild(...IElement) error
 	SetParent(IFormal) error
 	Type() LayoutElementType
 }
