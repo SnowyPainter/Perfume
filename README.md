@@ -1,11 +1,20 @@
 Perfume Guide & Example
 ======================
 
+# Focusing Point to Develop
+
+* Animation
+* Imaging
+
+
 # Example
 
 ## 1. Loveletter.go
 ![loveletter](./example/loveletterexe.png)
 모든 formal과 free, stack layout을 사용하여 구현합니다.  
+
+정적으로, UI를 출력 후 자유로운 상호작용을 보장합니다.  
+
 # Guide
 ## 0. Window 구조 Format Tree 뷰어
 --------------------
