@@ -41,34 +41,31 @@ func NewWindow(s Size) (*Window, error) {
 	}, nil
 }
 
+//Size return size
 func (w Window) Size() Size {
 	return w.size
 }
 
 //Add adds formal element to window
-func (w *Window) Add(f IFormal) error {
+func (w *Window) Add(formals ...IFormal) error {
+	for _, f := range formals {
+		if f == nil {
+			return ErrElementIsNil
+		}
+		size := f.Size()
+		sumOfHeight := size.Height
+		for _, s := range w.GetFormalSizes() {
+			sumOfHeight += s.Height
+		}
+		if size.Width > w.size.Width {
+			return ErrOutOfWidth
+		}
+		if sumOfHeight > w.size.Height {
+			return ErrOutOfHeight
+		}
 
-	if f == nil || w.formals == nil {
-		return ErrElementIsNil
+		w.formals[f.Type()] = f
 	}
-
-	if _, err := w.FindFormal(f.Type()); err == nil {
-		return ErrExistFormal
-	}
-
-	size := f.Size()
-	sumOfHeight := size.Height
-	for _, s := range w.GetFormalSizes() {
-		sumOfHeight += s.Height
-	}
-	if size.Width > w.size.Width {
-		return ErrOutOfWidth
-	}
-	if sumOfHeight > w.size.Height {
-		return ErrOutOfHeight
-	}
-
-	w.formals[f.Type()] = f
 
 	return nil
 }
