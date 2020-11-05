@@ -108,10 +108,6 @@ type StackLayout struct {
 }
 
 //******Elements*******
-type Input struct {
-	kind InputType
-	Element
-}
 type Text struct {
 	value string
 	Element

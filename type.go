@@ -9,9 +9,6 @@ type LayoutElementType uint8
 //ElementType is type of elements which can't be parent
 type ElementType uint8
 
-//InputType Types of Input Element
-type InputType uint8
-
 //OrientationType for stack layout
 type OrientationType uint8
 
@@ -56,11 +53,4 @@ const (
 	_ OrientationType = iota
 	VerticalOrientation
 	HorizontalOrientation
-)
-const (
-	_ InputType = iota
-	TextInputType
-	ChooseInputType
-	CheckInputType
-	NumericInputType
 )

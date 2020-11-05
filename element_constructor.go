@@ -87,10 +87,3 @@ func NewText(name string, text string, size Size) *Text {
 		Element: EmptyElement(TextElementType, NewRelativeLocation(0, 0), size, name),
 	}
 }
-
-func NewInputBox(name string, inputType InputType, size Size) *Input {
-	return &Input{
-		kind:    inputType,
-		Element: EmptyElement(InputElementType, NewRelativeLocation(0, 0), size, name),
-	}
-}
